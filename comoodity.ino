@@ -1,6 +1,6 @@
 #define MAX_HEATH = 8
 
-uint_32 = health;
+uint_32 health;
 uint_32 = 
 
 void setup() {
