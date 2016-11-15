@@ -11,7 +11,9 @@
 #define OFF matrix.Color(0, 0, 0)
 
 int health;
-time_t epoch;
+unsigned long epoch;
+unsigned long last_time;
+unsigned long last_time_tilted;
 bool buttonPress = false;
 bool tilted = false;
 int numPresses = 0;
@@ -41,58 +43,58 @@ void display_health(int health) {
     for(int j=0; j<8; j++) {
       uint16_t color;
       if(heart[i][j] == 0) color = OFF;
-      else if(j >= health) color = RED;
+      else if(j < health) color = RED;
       else if(heart[i][j] == 1) color = WHITE;
       else color = OFF;
-      matrix.drawPixel(i, j, color * BRIGHTNESS);
+      matrix.drawPixel(i, 7-j, color * BRIGHTNESS);
     }
   }
+  matrix.show();
 }
 
 void setup() {
   // put your setup code here, to run once:
   pinMode(tiltInPin, INPUT);
   pinMode(buttonInPin, INPUT);
-  digitalWrite(tiltInPin, HIGH);   // turn on the built in pull-up resistor
-  digitalWrite(buttonInPin, HIGH);
-  pinMode(outPin, OUTPUT);
-  epoch = now();
-  
+  epoch = millis();
+  last_time = epoch;
+  last_time_tilted = 0;
+  health = MAX_HEALTH;
   matrix.begin();
   matrix.setBrightness(BRIGHTNESS);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  time_t cur_time = now();
+  display_health(health);
+  unsigned long cur_time = millis();
   tilted = digitalRead(tiltInPin);
   buttonPress = digitalRead(buttonInPin);
+  
   if(tilted) {
     //start timer for health regen
-    time_t start_laying_down = now();
-    time_t end_laying_down = now();
-    while(digitalRead(tiltInPin)) {
-      end_laying_down = now();
+    unsigned long tilted_now = millis();
+
+    unsigned long dur = tilted_now - last_time_tilted;
+    if(dur > TIME_THRESHOLD) {
+      health = health + 1 >= MAX_HEALTH ? MAX_HEALTH : health + 1;
+      last_time_tilted = tilted_now;
+      display_health(health);
     }
-
-    time_t dur = end_laying_down - start_laying_down;
-
-    int hours = dur/TIME_THRESHOLD;
-    health = hours + health > MAX_HEALTH ? MAX_HEALTH : hours + health;
-  } else if(buttonPress) {
-    if(numPresses <= 5) {
+  }  else if(buttonPress) {
+    if(numPresses <= 8) {
         health = health + 1 >= MAX_HEALTH ? MAX_HEALTH : health + 1;     //increment health by one
         numPresses++; //increment numPresses by one
+        delay(200);
     }
   } else {
     //wait for countdown to reach x time
-    time_t dur = cur_time - epoch;
+    cur_time = millis();
+    unsigned long dur = cur_time - last_time;
 
     if(dur >= TIME_THRESHOLD) {
       health = health - 1 <= 0 ? 0 : health - 1;
-      epoch = now();
+      last_time = cur_time;
     }
   }
-
-  display_health(health);
 }
