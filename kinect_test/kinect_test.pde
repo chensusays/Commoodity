@@ -56,25 +56,27 @@ void draw() {
   box2d.step();
   
   if(mousePressed && frame % interval == 0){
-    PVector vel = new PVector(mouseX - lastMouse.x, mouseY - lastMouse.y);
-    vel.limit(4);
-    lastMouse = new PVector(mouseX, mouseY);
+    PVector vel = new PVector(mouseX - lastMouse.x, lastMouse.y - mouseY);
+    //vel.limit(4);
+    
     jxs.add(new Jax(mouseX, mouseY, random(3, 10), 255, 255, 0, 255, vel));
   }
+  lastMouse = new PVector(mouseX, mouseY);
   // Show the image
   tracker.display();
   fill(100, 250, 50, 200);
   noStroke();
   fill(0);
-
+  PVector v = new PVector(width/2, height/2);
   if(tracker.track()) {
-    PVector v = tracker.getLerpedPos();
-    PVector vel = new PVector(v.x - lastTrack.x, v.y - lastTrack.y);
-    vel.limit(4);
-    lastTrack = v;
+    v = tracker.getLerpedPos();
+    PVector vel = new PVector(v.x - lastTrack.x, lastTrack.y - v.y );
+    //vel.limit(4);
+    
     if(frame % interval == 0)
       jxs.add(new Jax(v.x, v.y, random(3, 10), vel));
   }
+  lastTrack = v;
   
   for(int i = jxs.size()-1; i >= 0; i--){
     Jax jx = jxs.get(i);
@@ -89,8 +91,8 @@ void draw() {
 }
 
 void mousePressed(){
-  PVector vel = new PVector(mouseX - lastMouse.x, mouseY - lastMouse.y);
-  vel.limit(4);
+  PVector vel = new PVector(mouseX - lastMouse.x, lastMouse.y - mouseY);
+  //vel.limit(4);
   lastMouse = new PVector(mouseX, mouseY);
   jxs.add(new Jax(mouseX, mouseY, random(3, 10), 255, 255, 0, 255, vel));
 }
@@ -113,5 +115,8 @@ void keyPressed() {
       float currentTilt = kinect.getTilt();
       kinect.setTilt(currentTilt - 1);
     }
+  }
+  if(key == 's'){
+     saveFrame("kinect" + random(1000)+ ".png"); 
   }
 }

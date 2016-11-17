@@ -89,7 +89,8 @@ class KinectTracker {
 
   void display() {
     PImage img = kinect.getDepthImage();
-
+    fill(200, 200, 0, 100);
+    ellipse(mouseX, mouseY, 30, 30);
     // Being overly cautious here
     if (depth == null || img == null) return;
 
@@ -105,7 +106,7 @@ class KinectTracker {
         int pix = (int) map(x, 0, kinect.width, 0, display.width) + (int) map(y, 0, kinect.height, 0, display.height) * display.width;
         if (rawDepth < threshold) {
           // A red color instead
-          display.pixels[pix] = color(150, 50, 50, 25);
+          display.pixels[pix] = color(255, 50, 50, 100);
         } else {
           display.pixels[pix] = color(0, 1); //img.pixels[offset];
         }
