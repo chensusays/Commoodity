@@ -58,8 +58,8 @@ class KinectTracker {
 
         // Testing against threshold
         if (rawDepth < threshold) {
-          sumX += x * xScale;
-          sumY += y * yScale;
+          sumX += map(x, 0, kinect.width, 0, display.width);
+          sumY += map(y, 0, kinect.height, 0, display.height);
           count++;
         }
       }
@@ -102,7 +102,7 @@ class KinectTracker {
         int offset = x + y * kinect.width;
         // Raw depth
         int rawDepth = depth[offset];
-        int pix = ((int) xScale * x) + ((int) yScale * y) * display.width;
+        int pix = (int) map(x, 0, kinect.width, 0, display.width) + (int) map(y, 0, kinect.height, 0, display.height) * display.width;
         if (rawDepth < threshold) {
           // A red color instead
           display.pixels[pix] = color(150, 50, 50, 25);

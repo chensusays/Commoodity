@@ -26,21 +26,26 @@ int frame;
 // The kinect stuff is happening in another class
 KinectTracker tracker;
 Kinect kinect;
-
+PVector lastMouse;
+PVector lastTrack;
 
 void setup() {
   frameRate(60);
   background(255);
   //size(640, 480);
   fullScreen();
+  lastMouse = new PVector();
+  lastTrack = new PVector();
+  
   kinect = new Kinect(this);
-  tracker = new KinectTracker(width, height);
+  tracker = new KinectTracker(1600, 900);
   
   box2d = new Box2DProcessing(this);
   box2d.createWorld();
   box2d.listenForCollisions();
-  box2d.setGravity(0, -10);
+  box2d.setGravity(0, -5);
   jxs = new ArrayList<Jax>();
+  
 }
 
 void draw() {
@@ -51,7 +56,10 @@ void draw() {
   box2d.step();
   
   if(mousePressed && frame % interval == 0){
-    jxs.add(new Jax(mouseX, mouseY, random(3, 10), 255, 255, 0, 255));
+    PVector vel = new PVector(mouseX - lastMouse.x, mouseY - lastMouse.y);
+    vel.limit(4);
+    lastMouse = new PVector(mouseX, mouseY);
+    jxs.add(new Jax(mouseX, mouseY, random(3, 10), 255, 255, 0, 255, vel));
   }
   // Show the image
   tracker.display();
@@ -61,8 +69,11 @@ void draw() {
 
   if(tracker.track()) {
     PVector v = tracker.getLerpedPos();
+    PVector vel = new PVector(v.x - lastTrack.x, v.y - lastTrack.y);
+    vel.limit(4);
+    lastTrack = v;
     if(frame % interval == 0)
-      jxs.add(new Jax(v.x, v.y, random(3, 10)));
+      jxs.add(new Jax(v.x, v.y, random(3, 10), vel));
   }
   
   for(int i = jxs.size()-1; i >= 0; i--){
@@ -74,8 +85,14 @@ void draw() {
       jxs.remove(i);
     }
   }
-    
   frame++;
+}
+
+void mousePressed(){
+  PVector vel = new PVector(mouseX - lastMouse.x, mouseY - lastMouse.y);
+  vel.limit(4);
+  lastMouse = new PVector(mouseX, mouseY);
+  jxs.add(new Jax(mouseX, mouseY, random(3, 10), 255, 255, 0, 255, vel));
 }
 
 // Adjust the threshold with key presses

@@ -4,11 +4,11 @@ class Jax{
   int red, green, blue, alpha;
   Body b;
   
-  Jax(float x, float y, float sz){
-    this(x, y, sz, 255, 255, 255, 255);
+  Jax(float x, float y, float sz, PVector vel){
+    this(x, y, sz, 255, 255, 255, 255, vel);
   }
   
-  Jax(float x, float y, float sz, int red, int green, int blue, int alpha){
+  Jax(float x, float y, float sz, int red, int green, int blue, int alpha, PVector vel){
     this.red = red;
     this.green = green;
     this.blue = blue;
@@ -59,6 +59,7 @@ class Jax{
     b.createFixture(tri3, 1.0);
     b.createFixture(tri4, 1.0);
     
+    b.setLinearVelocity(new Vec2(vel.x, vel.y));
     b.setAngularVelocity(random(-200, 200));
     
   }
