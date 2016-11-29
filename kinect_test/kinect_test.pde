@@ -16,12 +16,13 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.*;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.*;
+import java.util.*;
 
 final int interval = 8;
 
 Box2DProcessing box2d;
 
-ArrayList<Jax> jxs;
+List<Jax> jxs;
 int frame;
 // The kinect stuff is happening in another class
 KinectTracker tracker;
@@ -44,7 +45,7 @@ void setup() {
   box2d.createWorld();
   box2d.listenForCollisions();
   box2d.setGravity(0, -5);
-  jxs = new ArrayList<Jax>();
+  jxs = new LinkedList<Jax>();
   
 }
 
@@ -81,8 +82,6 @@ void draw() {
   for(int i = jxs.size()-1; i >= 0; i--){
     Jax jx = jxs.get(i);
     jx.display();
-    //Particles that leave the screen we delete
-    //need to be deleted from the list and the world
     if(jx.done()){
       jxs.remove(i);
     }
