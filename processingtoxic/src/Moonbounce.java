@@ -18,7 +18,7 @@ public class Moonbounce extends PApplet {
 
 
     ArrayList<Lin> ls;
-
+    float connectdist;
     int state = 0;
     boolean transition = false;
     float nx = 0;
@@ -28,20 +28,29 @@ public class Moonbounce extends PApplet {
     Moon m;
     Boundary b;
     HandBouncer  mouseBouncer;
+    int starlinecounter;
+    ArrayList<Star> p1stars;
+    ArrayList<Star> p2stars;
 
     public void setup() {
-        noCursor();
+        //noCursor();
 
         background(0, 0, 70);
+        connectdist = 80;
         ls = new ArrayList<Lin>();
         frameRate(60);
         box2d = new Box2DProcessing(this);
         box2d.createWorld();
-        //b = new Boundary(0, -height, width, height*3);
+        state = 1;
+        p1stars = new ArrayList<>();
+        p2stars = new ArrayList<>();
+        b = new Boundary(0, height/2, 10, height*3);
+        b = new Boundary(width, height/2, 10, height*3);
+        b = new Boundary(width/2, -height, width, 10);
         //box2d.listenForCollisions();
         //custom gravity;
 
-        box2d.setGravity(0, -10);
+        box2d.setGravity(0, -15);
 
     }
 
@@ -49,6 +58,7 @@ public class Moonbounce extends PApplet {
         //background(0);
         fill(15, 0, 35, 20);
         noStroke();
+        rectMode(CORNER);
         rect(0, 0, width, height);
         if(state == 0){
             if(!transition){
@@ -72,7 +82,8 @@ public class Moonbounce extends PApplet {
                 l.display(currx, curry);
                 for(int j = i+1; j < ls.size();j++){
                     Lin l2 = ls.get(j);
-                    if(dist(l2.end.x, l2.end.y, l.end.x, l.end.y) < 25){
+                    if(dist(l2.end.x, l2.end.y, l.end.x, l.end.y) < 30){
+
                         line(l2.end.x, l2.end.y, l.end.x, l.end.y);
                     }
                 }
@@ -98,17 +109,60 @@ public class Moonbounce extends PApplet {
             if(maxd > 100){
                 m = new Moon(width/2, height/2, maxd/2, false);
                 state = 2;
-                mouseBouncer = new HandBouncer(mouseX, mouseY, 20, true);
+                mouseBouncer = new HandBouncer(width/2, height/2+200, 20);
             }
         } else if (state == 2) {
+            int starlinecounter = 0;
+            for(int i = 0; i < p1stars.size();i++){
+                p1stars.get(i).display();
+                Vec2 v1 = p1stars.get(i).loc;
+
+                for(int j = i+1; j < p1stars.size(); j++){
+                    Vec2 v2 = p1stars.get(j).loc;
+                    if(dist(v2.x, v2.y, v1.x, v1.y) < 80){
+                        starlinecounter++;
+                        line(v2.x, v2.y, v1.x, v1.y);
+
+                    }
+
+                }
+            }
+            float moonY1 = m.body.getLinearVelocity().y;
             box2d.step();
-            mouseBouncer.killBody();
-            mouseBouncer = new HandBouncer(mouseX, mouseY, 20, true);
+            float moonY2 = m.body.getLinearVelocity().y;
+            if(moonY1 < 0 && moonY2 >= 0){
+                Vec2 coord = box2d.getBodyPixelCoord(m.body);
+                p1stars.add(new Star(coord));
+                for(int i = 0; i < p1stars.size()-1; i++){
+                    Vec2 s1 = p1stars.get(i).loc;
+                    if(dist(coord.x, coord.y, s1.x, s1.y) < 80){
+                        line(coord.x, coord.y, s1.x, s1.y);
+
+                    }
+                }
+            } else if(moonY1 >= 0 && moonY2 < 0){
+                Vec2 coord = box2d.getBodyPixelCoord(m.body);
+                p1stars.add(new Star(coord));
+                for(int i = 0; i < p1stars.size()-1; i++){
+                    Vec2 s1 = p1stars.get(i).loc;
+                    if(dist(coord.x, coord.y, s1.x, s1.y) < 80){
+                        line(coord.x, coord.y, s1.x, s1.y);
+
+                    }
+                }
+
+            }
+
+            //b.display();
             m.display();
             mouseBouncer.display();
             if(m.done()){
                 m = new Moon(width/2, height/2, maxd/2, false);
             }
+            fill(255);
+            textSize(20);
+            text("connections: " + starlinecounter, width-200, 20);
+
 
 
         }
@@ -122,6 +176,9 @@ public class Moonbounce extends PApplet {
     public void keyPressed(){
         if(key == 'c'){
             transition = true;
+        }
+        if(key == 's'){
+            saveFrame("constellation" + (int) random(1000)+ ".png");
         }
     }
 
@@ -186,7 +243,7 @@ public class Moonbounce extends PApplet {
             bd.position = box2d.coordPixelsToWorld(x,y);
             body = box2d.world.createBody(bd);
 
-            // Make the body's shape a circle
+
             // Make the body's shape a circle
             CircleShape cs = new CircleShape();
             cs.m_radius = box2d.scalarPixelsToWorld(r);
@@ -196,7 +253,7 @@ public class Moonbounce extends PApplet {
             // Parameters that affect physics
             //fd.density = 1;
             fd.friction = 0.3f;
-            fd.restitution = 1f;
+            fd.restitution = .8f;
 
             body.createFixture(fd);
 
@@ -232,7 +289,7 @@ public class Moonbounce extends PApplet {
             //fill(col);
             fill(255, 255, 169);
             stroke(255, 255, 153);
-            stroke(0);
+            //stroke(0);
             strokeWeight(1);
             ellipse(0,0,radius*2,radius*2);
             // Let's add a line so we can see the rotation
@@ -248,13 +305,13 @@ public class Moonbounce extends PApplet {
 
         //int col;
 
-        HandBouncer(float x, float y, float r, boolean fixed) {
+        HandBouncer(float x, float y, float r) {
             radius = r;
 
             // Define a body
             BodyDef bd = new BodyDef();
-            if (fixed) bd.type = BodyType.STATIC;
-            else bd.type = BodyType.DYNAMIC;
+            bd.type = BodyType.KINEMATIC;
+            bd.setBullet(true);
 
             // Set its position
             bd.position = box2d.coordPixelsToWorld(x,y);
@@ -270,8 +327,8 @@ public class Moonbounce extends PApplet {
             // Parameters that affect physics
             fd.density = 1;
             fd.friction = 0.3f;
-            fd.restitution = 0.5f;
-
+            fd.restitution = .1f;
+            body.setLinearVelocity(new Vec2(0, 0));
             body.createFixture(fd);
 
             //col = color(175);
@@ -296,17 +353,29 @@ public class Moonbounce extends PApplet {
 
         //
         void display() {
+            noStroke();
+            Vec2 pos = body.getWorldCenter();
+            Vec2 target = box2d.coordPixelsToWorld(mouseX,mouseY);
+            //A vector pointing from the body position to the Mouse
+
+            Vec2 v = target.sub(pos);
+
+            v.mulLocal(5);
+            /*if(dist(pos.x, pos.y, target.x, target.y) > 10){
+                v.mulLocal();
+            }*/
+            body.setLinearVelocity(v);
             // We look at each body and get its screen position
-            Vec2 pos = box2d.getBodyPixelCoord(body);
+            Vec2 posPix = box2d.getBodyPixelCoord(body);
             // Get its angle of rotation
             float a = body.getAngle();
             pushMatrix();
-            translate(pos.x,pos.y);
+            translate(posPix.x,posPix.y);
             rotate(a);
             //fill(col);
             fill(255, 255, 169);
             stroke(255, 255, 153);
-            stroke(0);
+            //stroke(0);
             strokeWeight(1);
             ellipse(0,0,radius*2,radius*2);
             // Let's add a line so we can see the rotation
@@ -318,7 +387,7 @@ public class Moonbounce extends PApplet {
     public class Boundary{
 
         float x, y;
-        float w,h;
+        float w, h;
 
         Body b;
 
@@ -345,6 +414,8 @@ public class Moonbounce extends PApplet {
         }
 
         void display(){
+
+
             fill(0);
             stroke(0);
             rectMode(CENTER);
@@ -352,6 +423,22 @@ public class Moonbounce extends PApplet {
         }
     }
 
+
+    public class Star{
+        Vec2 loc;
+        Star(Vec2 l){
+            loc = l;
+        }
+
+        void display(){
+            pushMatrix();
+            translate(loc.x, loc.y);
+            stroke(255);
+            noFill();
+            ellipse(0, 0, 10, 10);
+            popMatrix();
+        }
+    }
 
     public class TrackingCursor{
         float depth;
