@@ -87,12 +87,10 @@ class KinectTracker {
     return loc;
   }
 
-  void display() {
+  int[] display() {
     PImage img = kinect.getDepthImage();
-    fill(200, 200, 0, 100);
-    ellipse(mouseX, mouseY, 30, 30);
     // Being overly cautious here
-    if (depth == null || img == null) return;
+    if (depth == null || img == null) return null;
 
     // Going to rewrite the depth image to show which pixels are in threshold
     // A lot of this is redundant, but this is just for demonstration purposes
@@ -103,12 +101,12 @@ class KinectTracker {
         int offset = x + y * kinect.width;
         // Raw depth
         int rawDepth = depth[offset];
-        int pix = (int) map(x, 0, kinect.width, 0, display.width) + (int) map(y, 0, kinect.height, 0, display.height) * display.width;
+        int pix = x + y * display.width;
         if (rawDepth < threshold) {
           // A red color instead
           display.pixels[pix] = color(255, 50, 50, 100);
         } else {
-          display.pixels[pix] = color(0);//img.pixels[offset];
+          display.pixels[pix] = img.pixels[offset];
         }
       }
     }
@@ -116,6 +114,8 @@ class KinectTracker {
 
     // Draw the image
     image(display, 0, 0);
+    
+    return display.pixels;
   }
 
   int getThreshold() {
