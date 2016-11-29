@@ -7,6 +7,7 @@ Client c;
 String input;
 int data[];
 
+PVector[] lastVectors = null;
 Kinect kinect;
 ArrayList <SkeletonData> bodies;
 
@@ -37,16 +38,21 @@ void setup() {
   smooth();
   bodies = new ArrayList<SkeletonData>();
   stroke(0);
-  //frameRate(5); // Slow it down a little
-  c = new Client(this, "127.0.0.1", 8080);
+  boolean connected = false;
   s = new Server(this, 12345);  // Start a simple server on a port
+  while(!connected) {
+    delay(1000);
+    c = new Client(this, "192.168.1.42", 8080);
+    delay(2000);
+    connected = c.active();
+  }
+    
 }
 
 void draw() {
   background(0);
   
   if(c != null && c.available() > 0) {
-    background(0);
     byte[] data = c.readBytes();
     ByteBuffer bb = ByteBuffer.allocate(data.length);
     bb.put(data);
@@ -61,7 +67,10 @@ void draw() {
       vectors[i].x = floatData[2 * i];
       vectors[i].y = floatData[2 * i + 1];
     }
+    lastVectors = vectors;
     drawSkeleton(vectors);
+  } else if(lastVectors != null) {
+    drawSkeleton(lastVectors);
   }
   
   if(bodies.size() > 0) {
