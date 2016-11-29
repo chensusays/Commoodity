@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="library">
+    <CLASSES>
+      <root url="file://C:/Organization/Generative Art/processing-3.1/core/library" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../../../Processing Folder/Processing3/libraries/toxiclibs/src" />
+    </SOURCES>
+    <jarDirectory url="file://C:/Organization/Generative Art/processing-3.1/core/library" recursive="false" />
+  </library>
+</component>
