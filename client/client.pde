@@ -18,7 +18,7 @@ void setup() {
   size(640, 480); 
   //frameRate(5); // Slow it down a little
   // Connect to the server’s IP address and port­
-  c = new Client(this, "127.0.0.1", 12345); // Replace with your server’s IP and port
+  c = new Client(this, "150.212.31.13", 12345); // Replace with your server’s IP and port
   noStroke();
 } 
 

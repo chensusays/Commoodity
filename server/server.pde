@@ -37,16 +37,36 @@ void setup() {
   smooth();
   bodies = new ArrayList<SkeletonData>();
   stroke(0);
-  frameRate(5); // Slow it down a little
+  //frameRate(5); // Slow it down a little
+  c = new Client(this, "127.0.0.1", 8080);
   s = new Server(this, 12345);  // Start a simple server on a port
 }
 
 void draw() {
   background(0);
+  
+  if(c != null && c.available() > 0) {
+    background(0);
+    byte[] data = c.readBytes();
+    ByteBuffer bb = ByteBuffer.allocate(data.length);
+    bb.put(data);
+    bb.flip();
+    float[] floatData = new float[data.length / 4];
+    for(int i=0; i<floatData.length; i++) {
+      floatData[i] = bb.getFloat();
+    }
+    PVector[] vectors = new PVector[floatData.length / 2];
+    for(int i=0; i<vectors.length; i++) {
+      vectors[i] = new PVector();
+      vectors[i].x = floatData[2 * i];
+      vectors[i].y = floatData[2 * i + 1];
+    }
+    drawSkeleton(vectors);
+  }
+  
   if(bodies.size() > 0) {
     SkeletonData skeleton = bodies.get(0);
-    drawSkeleton(skeleton);
-    drawPosition(skeleton);
+    drawHands(skeleton);
     float[] data = new float[skeleton.skeletonPositions.length * 2];
     for(int i=0; i<skeleton.skeletonPositions.length; i++) {
       if(skeleton.skeletonPositionTrackingState[i] == Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
@@ -75,7 +95,7 @@ void drawPosition(SkeletonData _s) {
 }
 
 
-void drawSkeleton(SkeletonData _s) {
+void drawHands(SkeletonData _s) {
   println(_s);
   // Body
   if(_s.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_RIGHT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
@@ -88,19 +108,6 @@ void drawSkeleton(SkeletonData _s) {
   }
 }
 
-void DrawBone(SkeletonData _s, int _j1, int _j2) 
-{
-  noFill();
-  stroke(255, 255, 0);
-  if (_s.skeletonPositionTrackingState[_j1] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED &&
-    _s.skeletonPositionTrackingState[_j2] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
-    line(_s.skeletonPositions[_j1].x*width, 
-    _s.skeletonPositions[_j1].y*height, 
-    _s.skeletonPositions[_j2].x*width, 
-    _s.skeletonPositions[_j2].y*height);
-  }
-}
-
 void appearEvent(SkeletonData _s) 
 {
   if (_s.trackingState == Kinect.NUI_SKELETON_NOT_TRACKED) 
@@ -109,6 +116,99 @@ void appearEvent(SkeletonData _s)
   }
   synchronized(bodies) {
     bodies.add(_s);
+  }
+}
+
+void drawSkeleton(PVector[] vectors) {
+  // Body
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_HEAD, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_CENTER);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_CENTER, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_LEFT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_CENTER, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_RIGHT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_CENTER, 
+  Kinect.NUI_SKELETON_POSITION_SPINE);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_SPINE);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_SPINE);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SPINE, 
+  Kinect.NUI_SKELETON_POSITION_HIP_CENTER);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_HIP_CENTER, 
+  Kinect.NUI_SKELETON_POSITION_HIP_LEFT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_HIP_CENTER, 
+  Kinect.NUI_SKELETON_POSITION_HIP_RIGHT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_HIP_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_HIP_RIGHT);
+
+  // Left Arm
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_ELBOW_LEFT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_ELBOW_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_WRIST_LEFT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_WRIST_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_HAND_LEFT);
+
+  // Right Arm
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_SHOULDER_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_ELBOW_RIGHT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_ELBOW_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_WRIST_RIGHT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_WRIST_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_HAND_RIGHT);
+
+  // Left Leg
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_HIP_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_KNEE_LEFT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_KNEE_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_ANKLE_LEFT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_ANKLE_LEFT, 
+  Kinect.NUI_SKELETON_POSITION_FOOT_LEFT);
+
+  // Right Leg
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_HIP_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_KNEE_RIGHT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_KNEE_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_ANKLE_RIGHT);
+  DrawBone(vectors, 
+  Kinect.NUI_SKELETON_POSITION_ANKLE_RIGHT, 
+  Kinect.NUI_SKELETON_POSITION_FOOT_RIGHT);
+}
+
+void DrawBone(PVector[] vectors, int _j1, int _j2) 
+{
+  if(_j1 >= vectors.length || _j2 >= vectors.length) {
+    return;
+  }
+  noFill();
+  stroke(255, 255, 0);
+  if ((vectors[_j1].x != 0 || vectors[_j1].y != 0) && (vectors[_j2].x != 0 || vectors[_j2].y != 0)) {
+    line(vectors[_j1].x*width, 
+    vectors[_j1].y*height, 
+    vectors[_j2].x*width, 
+    vectors[_j2].y*height);
   }
 }
 
