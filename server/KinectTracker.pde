@@ -4,7 +4,7 @@
 
 // https://github.com/shiffman/OpenKinect-for-Processing
 // http://shiffman.net/p5/kinect/
-class KinectTracker {
+/**class KinectTracker {
 
   double xScale;
   double yScale;
@@ -125,4 +125,4 @@ class KinectTracker {
   void setThreshold(int t) {
     threshold =  t;
   }
-}
+}**/
