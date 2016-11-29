@@ -73,6 +73,22 @@ void setup() {
     delay(2000);
     connected = c.active();
   }
+  background(0, 0, 70);
+  connectdist = 80;
+  ls = new ArrayList<Lin>();
+  frameRate(60);
+  box2d = new Box2DProcessing(this);
+  box2d.createWorld();
+  state = 1;
+  p1stars = new ArrayList<>();
+  p2stars = new ArrayList<>();
+  b = new Boundary(0, height/2, 10, height*3);
+  b = new Boundary(width, height/2, 10, height*3);
+  b = new Boundary(width/2, -height, width, 10);
+  //box2d.listenForCollisions();
+  //custom gravity;
+
+  box2d.setGravity(0, -15);
     
 }
 
