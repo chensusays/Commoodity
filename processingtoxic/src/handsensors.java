@@ -2,9 +2,10 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 public class handsensors extends PApplet {
-    public static TrackingCursor t1;
-    public static float dep;
+    public TrackingCursor t1;
+    public float dep;
     public void setup() {
+        noCursor();
         background(0);
         stroke(255);
         dep = 0;

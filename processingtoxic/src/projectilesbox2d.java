@@ -317,7 +317,6 @@ public class projectilesbox2d extends PApplet {
             body.createFixture(fd);
 
             //Give it some initial random velocity
-            body.set
             body.setLinearVelocity(new Vec2(random(-5, 5), random(-5, 5)));
             body.setAngularVelocity(random(-5, 5));
         }
