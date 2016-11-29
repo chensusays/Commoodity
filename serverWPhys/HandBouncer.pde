@@ -51,10 +51,10 @@
     }
 
     //
-    void display() {
+    void display(float x, float y) {
         noStroke();
         Vec2 pos = body.getWorldCenter();
-        Vec2 target = box2d.coordPixelsToWorld(mouseX,mouseY);
+        Vec2 target = box2d.coordPixelsToWorld(x,y);
         //A vector pointing from the body position to the Mouse
 
         Vec2 v = target.sub(pos);

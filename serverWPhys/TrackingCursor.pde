@@ -1,4 +1,4 @@
-public class TrackingCursor{
+public class TrackingCursor {
     float depth;
     int numArcs;
     float[] startingAngles;
@@ -11,7 +11,7 @@ public class TrackingCursor{
     int col;
     float nx;
 
-    public TrackingCursor(){// initialized ot the center of the screen
+    public TrackingCursor() {// initialized ot the center of the screen
         numArcs = 15;
         loc = new PVector(width/2, height/2);
         maxradius = 100;
@@ -57,5 +57,4 @@ public class TrackingCursor{
         noStroke();
         strokeWeight(1);
     }
-
 }

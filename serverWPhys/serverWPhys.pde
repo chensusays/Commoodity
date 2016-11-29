@@ -33,7 +33,7 @@ int curry = 0;
 Box2DProcessing box2d;
 Moon m;
 Boundary b;
-HandBouncer  mouseBouncer;
+HandBouncer [] mouseBouncers;
 int starlinecounter;
 ArrayList<Star> p1stars;
 ArrayList<Star> p2stars;
@@ -58,6 +58,7 @@ int[] toIntArray(byte[] byteArray) {
 }
 
 void setup() {
+  mouseBouncers = new HandBouncer[2];
   frameRate(60);
   background(255);
   size(640, 480);
@@ -79,9 +80,9 @@ void setup() {
   frameRate(60);
   box2d = new Box2DProcessing(this);
   box2d.createWorld();
-  state = 1;
-  p1stars = new ArrayList<>();
-  p2stars = new ArrayList<>();
+  state = 0;
+  p1stars = new ArrayList<Star>();
+  p2stars = new ArrayList<Star>();
   b = new Boundary(0, height/2, 10, height*3);
   b = new Boundary(width, height/2, 10, height*3);
   b = new Boundary(width/2, -height, width, 10);
@@ -93,7 +94,7 @@ void setup() {
 }
 
 void draw() {
-  background(0);
+  drawMoon();
   
   if(c != null && c.available() > 0) {
     byte[] data = c.readBytes();
@@ -118,7 +119,8 @@ void draw() {
   
   if(bodies.size() > 0) {
     SkeletonData skeleton = bodies.get(0);
-    drawHands(skeleton);
+    if(state == 2)
+      drawHands(skeleton);
     float[] data = new float[skeleton.skeletonPositions.length * 2];
     for(int i=0; i<skeleton.skeletonPositions.length; i++) {
       if(skeleton.skeletonPositionTrackingState[i] == Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
@@ -132,11 +134,116 @@ void draw() {
     }
     s.write(toByteArray(data));
   }
+}
+
+void drawMoon() {
+  fill(15, 0, 35, 20);
+  noStroke();
+  rectMode(CORNER);
+  rect(0, 0, width, height);
+  if(state == 0){
+      if(!transition){
+          currx = (int) map(noise(nx), 0, 1, -100, width+100);
+          curry = (int) map(noise(0, nx), 0, 1, -100, height+100);
+      } else {
+          currx = (int) lerp(currx, width/2, .05f);
+          curry = (int) lerp(curry, height/2, .05f);
+      }
   
-  // send data
-  //s.write();
-  //s.write(v.x + " " + v.y + "\n");
-  //System.out.println(v.x + " " + v.y + "\n");
+      stroke(255);
+      if( ls.size() < 50 && maxd > 10){
+          for(int i = 0; i < 10; i++){
+              ls.add(new Lin(currx, curry));
+          }
+      }
+      //Iterator<Lin> it = ls.iterator();
+  
+      for(int i = 0; i < ls.size();i++){
+          Lin l = ls.get(i);
+          l.display(currx, curry);
+          for(int j = i+1; j < ls.size();j++){
+              Lin l2 = ls.get(j);
+              if(dist(l2.end.x, l2.end.y, l.end.x, l.end.y) < 30){
+  
+                  line(l2.end.x, l2.end.y, l.end.x, l.end.y);
+              }
+          }
+  
+          if(l.tooFar(currx, curry) || maxd < 2){
+              ls.remove(l);
+          }
+  
+      }
+      if(transition){
+          maxd-=.5;
+          if(maxd < 0){
+              state = 1;
+              transition = false;
+          }
+      }
+      nx+=.02;
+  } else if(state == 1){
+  
+      fill(255, 255, 169);
+      ellipse(width/2, height/2, maxd, maxd);
+      maxd++;
+      if(maxd > 100){
+          m = new Moon(width/2, height/2, maxd/2, false);
+          state = 2;
+          mouseBouncers[0] = new HandBouncer(width/2, height/2+200, 20);
+          mouseBouncers[1] = new HandBouncer(width/2, height/2+200, 20);
+      }
+  } else if (state == 2) {
+      int starlinecounter = 0;
+      for(int i = 0; i < p1stars.size();i++){
+          p1stars.get(i).display();
+          Vec2 v1 = p1stars.get(i).loc;
+  
+          for(int j = i+1; j < p1stars.size(); j++){
+              Vec2 v2 = p1stars.get(j).loc;
+              if(dist(v2.x, v2.y, v1.x, v1.y) < 80){
+                  starlinecounter++;
+                  line(v2.x, v2.y, v1.x, v1.y);
+  
+              }
+  
+          }
+      }
+      float moonY1 = m.body.getLinearVelocity().y;
+      box2d.step();
+      float moonY2 = m.body.getLinearVelocity().y;
+      if(moonY1 < 0 && moonY2 >= 0){
+          Vec2 coord = box2d.getBodyPixelCoord(m.body);
+          p1stars.add(new Star(coord));
+          for(int i = 0; i < p1stars.size()-1; i++){
+              Vec2 s1 = p1stars.get(i).loc;
+              if(dist(coord.x, coord.y, s1.x, s1.y) < 80){
+                  line(coord.x, coord.y, s1.x, s1.y);
+  
+              }
+          }
+      } else if(moonY1 >= 0 && moonY2 < 0){
+          Vec2 coord = box2d.getBodyPixelCoord(m.body);
+          p1stars.add(new Star(coord));
+          for(int i = 0; i < p1stars.size()-1; i++){
+              Vec2 s1 = p1stars.get(i).loc;
+              if(dist(coord.x, coord.y, s1.x, s1.y) < 80){
+                  line(coord.x, coord.y, s1.x, s1.y);
+  
+              }
+          }
+  
+      }
+  
+      //b.display();
+      m.display();
+    if(m.done()){
+        m = new Moon(width/2, height/2, maxd/2, false);
+    }
+  }
+  fill(255);
+  textSize(20);
+  text("connections: " + starlinecounter, width-200, 20);
 }
 
 void drawPosition(SkeletonData _s) {
@@ -148,20 +255,22 @@ void drawPosition(SkeletonData _s) {
 
 
 void drawHands(SkeletonData _s) {
-  println(_s);
   // Body
   if(_s.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_RIGHT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
     PVector rightHand = _s.skeletonPositions[Kinect.NUI_SKELETON_POSITION_HAND_RIGHT];
-    ellipse(rightHand.x * width, rightHand.y * height, 20, 20);
+    mouseBouncers[0].display(rightHand.x * width, rightHand.y * height);
   }
   if(_s.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_LEFT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
     PVector leftHand = _s.skeletonPositions[Kinect.NUI_SKELETON_POSITION_HAND_LEFT];
-    ellipse(leftHand.x * width, leftHand.y * height, 20, 20);
+    mouseBouncers[1].display(leftHand.x * width, leftHand.y * height);
   }
 }
 
 void appearEvent(SkeletonData _s) 
 {
+  if(state == 0 && !transition) {
+    transition = true;
+  }
   if (_s.trackingState == Kinect.NUI_SKELETON_NOT_TRACKED) 
   {
     return;
