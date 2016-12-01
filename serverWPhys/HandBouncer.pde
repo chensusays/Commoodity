@@ -52,22 +52,28 @@
 
     //
     void display(float x, float y) {
-        noStroke();
-        Vec2 pos = body.getWorldCenter();
-        Vec2 target = box2d.coordPixelsToWorld(x,y);
-        //A vector pointing from the body position to the Mouse
-
-        Vec2 v = target.sub(pos);
-
-        v.mulLocal(5);
-        /*if(dist(pos.x, pos.y, target.x, target.y) > 10){
-            v.mulLocal();
-        }*/
-        body.setLinearVelocity(v);
-        // We look at each body and get its screen position
+      Vec2 pos;
+        if(x > width && y > height && x < 0 && y < 0){
+          body.setLinearVelocity(new Vec2(0, 0));
+        } else {
+          
+          pos = body.getWorldCenter();
+          Vec2 target = box2d.coordPixelsToWorld(x,y);
+          //A vector pointing from the body position to the Mouse
+  
+          Vec2 v = target.sub(pos);
+  
+          v.mulLocal(5);
+          /*if(dist(pos.x, pos.y, target.x, target.y) > 10){
+              v.mulLocal();
+          }*/
+          body.setLinearVelocity(v);
+          // We look at each body and get its screen position
+          // Get its angle of rotation
+        }
         Vec2 posPix = box2d.getBodyPixelCoord(body);
-        // Get its angle of rotation
         float a = body.getAngle();
+        noStroke();
         pushMatrix();
         translate(posPix.x,posPix.y);
         rotate(a);

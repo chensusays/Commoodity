@@ -60,10 +60,12 @@ int[] toIntArray(byte[] byteArray) {
 }
 
 void setup() {
+  
   mouseBouncers = new HandBouncer[2];
   frameRate(60);
   background(255);
-  size(640, 480);
+  //size(640, 480);
+  fullScreen();
   kinect = new Kinect(this);
   smooth();
   bodies = new ArrayList<SkeletonData>();
@@ -179,6 +181,8 @@ void drawMoon() {
       if(transition){
           maxd-=2;
           if(maxd < 0){
+            mouseBouncers[0] = new HandBouncer(width/2, height/2+200, 20);
+          mouseBouncers[1] = new HandBouncer(width/2, height/2+200, 20);
               state = 1;
               transition = false;
           }
@@ -187,13 +191,12 @@ void drawMoon() {
   } else if(state == 1){
   
       fill(255, 255, 169);
-      ellipse(width/2, height/2, maxd, maxd);
+      ellipse(width/2, height/2-200, maxd, maxd);
       maxd++;
       if(maxd > 100){
-          m = new Moon(width/2, height/2, maxd/2, false);
+          m = new Moon(width/2, height/2-200, maxd/2, false);
           state = 2;
-          mouseBouncers[0] = new HandBouncer(width/2, height/2+200, 20);
-          mouseBouncers[1] = new HandBouncer(width/2, height/2+200, 20);
+          
       }
   } else if (state == 2) {
       int starlinecounter = 0;
@@ -214,6 +217,7 @@ void drawMoon() {
       float moonY1 = m.body.getLinearVelocity().y;
       box2d.step();
       float moonY2 = m.body.getLinearVelocity().y;
+      //the following checks for a change in y velocity of the moon and then draws a star if it's true;
       if(moonY1 < 0 && moonY2 >= 0){
           Vec2 coord = box2d.getBodyPixelCoord(m.body);
           p1stars.add(new Star(coord));
@@ -246,12 +250,13 @@ void drawMoon() {
       //b.display();
       m.display();
     if(m.done()){
-        m = new Moon(width/2, height/2, maxd/2, false);
+        m = new Moon(width/2, height/2-200, maxd/2, false);
     }
+    fill(255);
+    textSize(20);
+    text("connections: " + starlinecounter, width-200, 20);
   }
-  fill(255);
-  textSize(20);
-  text("connections: " + starlinecounter, width-200, 20);
+  
 }
 
 void drawPosition(SkeletonData _s) {
