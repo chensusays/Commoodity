@@ -37,6 +37,8 @@ HandBouncer [] mouseBouncers;
 int starlinecounter;
 ArrayList<Star> p1stars;
 ArrayList<Star> p2stars;
+boolean useInternet = false;
+int maxStars = 50;
 
 byte[] toByteArray(float[] a) {
     ByteBuffer bb = ByteBuffer.allocate(4 * a.length);
@@ -68,9 +70,9 @@ void setup() {
   stroke(0);
   boolean connected = false;
   s = new Server(this, 12345);  // Start a simple server on a port
-  while(!connected) {
+  while(!connected && useInternet) {
     delay(1000);
-    c = new Client(this, "192.168.1.42", 8080);
+    c = new Client(this, "150.212.30.73", 8080);
     delay(2000);
     connected = c.active();
   }
@@ -175,7 +177,7 @@ void drawMoon() {
   
       }
       if(transition){
-          maxd-=.5;
+          maxd-=2;
           if(maxd < 0){
               state = 1;
               transition = false;
@@ -215,6 +217,9 @@ void drawMoon() {
       if(moonY1 < 0 && moonY2 >= 0){
           Vec2 coord = box2d.getBodyPixelCoord(m.body);
           p1stars.add(new Star(coord));
+          if(p1stars.size() > maxStars) {
+            p1stars.remove(0);
+          }
           for(int i = 0; i < p1stars.size()-1; i++){
               Vec2 s1 = p1stars.get(i).loc;
               if(dist(coord.x, coord.y, s1.x, s1.y) < 80){
@@ -225,6 +230,9 @@ void drawMoon() {
       } else if(moonY1 >= 0 && moonY2 < 0){
           Vec2 coord = box2d.getBodyPixelCoord(m.body);
           p1stars.add(new Star(coord));
+          if(p1stars.size() > maxStars) {
+            p1stars.remove(0);
+          }
           for(int i = 0; i < p1stars.size()-1; i++){
               Vec2 s1 = p1stars.get(i).loc;
               if(dist(coord.x, coord.y, s1.x, s1.y) < 80){
@@ -276,7 +284,7 @@ void appearEvent(SkeletonData _s)
     return;
   }
   synchronized(bodies) {
-    bodies.add(_s);
+    bodies.add(0, _s);
   }
 }
 
