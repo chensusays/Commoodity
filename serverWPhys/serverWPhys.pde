@@ -152,13 +152,17 @@ void draw() {
   }
   
   if(state == 2) {
-    for(Skeleton skeleton : remoteSkeletons) {
-      skeleton.drawHands();
-      skeleton.drawSkeleton(color(0, 255, 255));
+    synchronized(remoteSkeletons) {
+      for(Skeleton skeleton : remoteSkeletons) {
+        skeleton.drawHands();
+        skeleton.drawSkeleton(color(0, 255, 255));
+      }
     }
-    for(Skeleton skeleton : bodies) {
-      skeleton.drawHands();
-      skeleton.drawSkeleton(color(255, 255, 0));
+    synchronized(bodies) {
+      for(Skeleton skeleton : bodies) {
+        skeleton.drawHands();
+        skeleton.drawSkeleton(color(255, 255, 0));
+      }
     }
   }
   if(useServer && bodies.size() > 0)
@@ -206,8 +210,6 @@ void drawMoon() {
       if(transition){
           maxd-=2;
           if(maxd < 0){
-            mouseBouncers[0] = new HandBouncer(width/2, height/2+200, 20);
-          mouseBouncers[1] = new HandBouncer(width/2, height/2+200, 20);
               state = 1;
               transition = false;
           }
