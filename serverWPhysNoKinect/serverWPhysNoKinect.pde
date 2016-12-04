@@ -40,9 +40,9 @@ List<HandBouncer> mouseBouncers;
 int starlinecounter;
 ArrayList<Star> p1stars;
 ArrayList<Star> p2stars;
-boolean useClient = false;
+boolean useClient = true;
 boolean useServer = false;
-boolean useKinect = true;
+boolean useKinect = false;
 int maxStars = 50;
 
 byte[] encodeSkeletons(List<Skeleton> skeletons) {
