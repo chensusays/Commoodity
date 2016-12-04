@@ -6,8 +6,8 @@ public class Skeleton extends SkeletonData {
   
   public Skeleton() {
     super();
-    this.leftHand = new HandBouncer(width/2, height/2+200, 20);
-    this.rightHand = new HandBouncer(width/2, height/2+200, 20);
+    this.leftHand = null;
+    this.rightHand = null;
   }
   
   public Skeleton(SkeletonData s) {
@@ -21,11 +21,17 @@ public class Skeleton extends SkeletonData {
     if(this.skeletonPositionTrackingState.length > Kinect.NUI_SKELETON_POSITION_HAND_RIGHT &&
        this.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_RIGHT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
       PVector rightHandPosition = this.skeletonPositions[Kinect.NUI_SKELETON_POSITION_HAND_RIGHT];
+      if(this.rightHand == null) {
+        this.rightHand = new HandBouncer(rightHandPosition.x * width, rightHandPosition.y * height, 20);
+      }
       this.rightHand.display(rightHandPosition.x * width, rightHandPosition.y * height);
     }
     if(this.skeletonPositionTrackingState.length > Kinect.NUI_SKELETON_POSITION_HAND_LEFT &&
-       this.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_LEFT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
+      this.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_LEFT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {
       PVector leftHandPosition = this.skeletonPositions[Kinect.NUI_SKELETON_POSITION_HAND_LEFT];
+      if(this.leftHand == null) {
+        this.leftHand = new HandBouncer(leftHandPosition.x * width, leftHandPosition.y * height, 20);
+      }
       this.leftHand.display(leftHandPosition.x * width, leftHandPosition.y * height);
     }
   }

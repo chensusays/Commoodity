@@ -40,8 +40,8 @@ List<HandBouncer> mouseBouncers;
 int starlinecounter;
 ArrayList<Star> p1stars;
 ArrayList<Star> p2stars;
-boolean useClient = true;
-boolean useServer = true;
+boolean useClient = false;
+boolean useServer = false;
 boolean useKinect = true;
 int maxStars = 50;
 
@@ -77,6 +77,7 @@ List<Skeleton> decodeSkeletons(byte[] data) {
     Skeleton skeleton = new Skeleton();
     skeleton.dwTrackingID = buffer.getInt();
     int numberOfJoints = buffer.getInt();
+    if(numberOfJoints < 0 || numberOfJoints > 10) return new ArrayList<Skeleton>();
     skeleton.skeletonPositions = new PVector[numberOfJoints];
     for(int j=0; j<numberOfJoints; j++) {
       skeleton.skeletonPositions[j] = new PVector();
