@@ -26,8 +26,8 @@ public class Moon { //based off of Dan Shiffman's Particle class in PBox2D tutor
         fd.shape = cs;
         // Parameters that affect physics
         //fd.density = 1;
-        fd.friction = 0.3f;
-        fd.restitution = .8f;
+        fd.friction = 0.8f;
+        fd.restitution = .5f;
 
         body.createFixture(fd);
 
