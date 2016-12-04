@@ -17,6 +17,11 @@ public class Skeleton extends SkeletonData {
     this.skeletonPositionTrackingState = s.skeletonPositionTrackingState;
   }
   
+  public void killBody() {
+    this.rightHand.killBody();
+    this.leftHand.killBody();
+  }
+  
   void drawHands() {
     if(this.skeletonPositionTrackingState.length > Kinect.NUI_SKELETON_POSITION_HAND_RIGHT &&
        this.skeletonPositionTrackingState[Kinect.NUI_SKELETON_POSITION_HAND_RIGHT] != Kinect.NUI_SKELETON_POSITION_NOT_TRACKED) {

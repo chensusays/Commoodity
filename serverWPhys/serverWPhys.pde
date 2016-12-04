@@ -11,8 +11,14 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.*;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.*;
-
 import java.util.ArrayList;
+
+String IP_ADDRESS = "192.168.1.2";
+int SERVER_PORT = 8080;
+int CLIENT_PORT = 12345;
+boolean useClient = true;
+boolean useServer = true;
+boolean useKinect = true;
 
 Server s; 
 Client c;
@@ -40,9 +46,6 @@ List<HandBouncer> mouseBouncers;
 int starlinecounter;
 ArrayList<Star> p1stars;
 ArrayList<Star> p2stars;
-boolean useClient = false;
-boolean useServer = false;
-boolean useKinect = true;
 int maxStars = 50;
 
 byte[] encodeSkeletons(List<Skeleton> skeletons) {
@@ -77,7 +80,8 @@ List<Skeleton> decodeSkeletons(byte[] data) {
     Skeleton skeleton = new Skeleton();
     skeleton.dwTrackingID = buffer.getInt();
     int numberOfJoints = buffer.getInt();
-    if(numberOfJoints < 0 || numberOfJoints > 10) return new ArrayList<Skeleton>();
+    println(numberOfJoints);
+    if(numberOfJoints < 0 || numberOfJoints > 100) return new ArrayList<Skeleton>();
     skeleton.skeletonPositions = new PVector[numberOfJoints];
     for(int j=0; j<numberOfJoints; j++) {
       skeleton.skeletonPositions[j] = new PVector();
@@ -107,10 +111,10 @@ void setup() {
   stroke(0);
   boolean connected = false;
   if(useServer)
-    s = new Server(this, 12345);  // Start a simple server on a port
+    s = new Server(this, SERVER_PORT);  // Start a simple server on a port
   while(!connected && useClient) {
     delay(1000);
-    c = new Client(this, "192.168.1.2", 8080);
+    c = new Client(this, IP_ADDRESS, CLIENT_PORT);
     delay(2000);
     connected = c.active();
   }
@@ -145,6 +149,7 @@ void draw() {
           }
         }
         if(!skeletonUpdated) {
+          remoteSkeletons.get(i).killBody();
           remoteSkeletons.remove(i);
         }
       }
@@ -314,6 +319,7 @@ void disappearEvent(SkeletonData _s)
     {
       if (_s.dwTrackingID == bodies.get(i).dwTrackingID)
       {
+        bodies.get(i).killBody();
         bodies.remove(i);
       }
     }
