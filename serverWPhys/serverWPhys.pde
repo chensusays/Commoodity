@@ -40,8 +40,8 @@ List<HandBouncer> mouseBouncers;
 int starlinecounter;
 ArrayList<Star> p1stars;
 ArrayList<Star> p2stars;
-boolean useClient = false;
-boolean useServer = false;
+boolean useClient = true;
+boolean useServer = true;
 boolean useKinect = true;
 int maxStars = 50;
 
@@ -97,7 +97,7 @@ void setup() {
   mouseBouncers = new LinkedList<HandBouncer>();
   frameRate(60);
   background(255);
-  size(640, 480);
+  size(1024, 640);
   if(useKinect)
     kinect = new Kinect(this);
   smooth();
@@ -109,7 +109,7 @@ void setup() {
     s = new Server(this, 12345);  // Start a simple server on a port
   while(!connected && useClient) {
     delay(1000);
-    c = new Client(this, "127.0.0.1", 12345);
+    c = new Client(this, "192.168.1.2", 8080);
     delay(2000);
     connected = c.active();
   }
@@ -118,7 +118,7 @@ void setup() {
   ls = new ArrayList<Lin>();
   box2d = new Box2DProcessing(this);
   box2d.createWorld();
-  state = 1;
+  state = 0;
   p1stars = new ArrayList<Star>();
   p2stars = new ArrayList<Star>();
   b = new Boundary(0, height/2, 10, height*3);
@@ -221,7 +221,7 @@ void drawMoon() {
       ellipse(width/2, height/2-200, maxd, maxd);
       maxd++;
       if(maxd > 100){
-          m = new Moon(width/2, height/2-200, maxd/2, false);
+          m = new Moon(width/2, height/2-150, maxd/2, false);
           state = 2;
       }
   } else if (state == 2) {
@@ -276,7 +276,7 @@ void drawMoon() {
       //b.display();
       m.display();
     if(m.done()){
-        m = new Moon(width/2, height/2-200, maxd/2, false);
+        m = new Moon(width/2, height/2-150, maxd/2, false);
     }
     fill(255);
     textSize(20);

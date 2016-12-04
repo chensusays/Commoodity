@@ -6,7 +6,6 @@ public class Skeleton extends SkeletonData {
   
   public Skeleton() {
     super();
-    println(width + " " + height);
     this.leftHand = new HandBouncer(width/2, height/2+200, 20);
     this.rightHand = new HandBouncer(width/2, height/2+200, 20);
   }
