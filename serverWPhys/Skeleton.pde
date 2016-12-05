@@ -18,8 +18,10 @@ public class Skeleton extends SkeletonData {
   }
   
   public void killBody() {
-    this.rightHand.killBody();
-    this.leftHand.killBody();
+    if(this.rightHand != null)
+      this.rightHand.killBody();
+    if(this.leftHand != null)
+      this.leftHand.killBody();
   }
   
   void drawHands() {
