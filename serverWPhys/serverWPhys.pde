@@ -13,11 +13,11 @@ import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.*;
 import java.util.ArrayList;
 
-String IP_ADDRESS = "192.168.1.2";
-int SERVER_PORT = 8080;
-int CLIENT_PORT = 12345;
-boolean useClient = true;
-boolean useServer = true;
+String IP_ADDRESS = "192.168.1.3";
+int CLIENT_PORT = 8080;
+int SERVER_PORT = 12345;
+boolean useClient = false;
+boolean useServer = false;
 boolean useKinect = true;
 
 Server s; 
@@ -30,6 +30,7 @@ Kinect kinect;
 List<Skeleton> bodies;
 List<Skeleton> remoteSkeletons;
 float maxd = 150;
+int frameCounter = 0;
 
 
 ArrayList<Lin> ls;
@@ -102,7 +103,8 @@ void setup() {
   mouseBouncers = new LinkedList<HandBouncer>();
   frameRate(60);
   background(255);
-  size(1024, 640);
+  //size(1024, 640);
+  fullScreen();
   if(useKinect)
     kinect = new Kinect(this);
   smooth();
@@ -134,6 +136,7 @@ void setup() {
 }
 
 void draw() {
+  frameCounter++;
   drawMoon();
   if(c != null && c.available() > 0) {
     try {
@@ -171,6 +174,10 @@ void draw() {
       }
     }
   }
+  
+  if(frameCounter % 360 == 0){
+    //saveFrame("constellation"+random(1000) + ".png");
+  }
   if(useServer && bodies.size() > 0)
     s.write(encodeSkeletons(bodies));
 }
@@ -202,7 +209,8 @@ void drawMoon() {
           l.display(currx, curry);
           for(int j = i+1; j < ls.size();j++){
               Lin l2 = ls.get(j);
-              if(dist(l2.end.x, l2.end.y, l.end.x, l.end.y) < 30){
+              float dis = dist(l2.end.x, l2.end.y, l.end.x, l.end.y);
+              if( dis < 30 && dis > 2){
   
                   line(l2.end.x, l2.end.y, l.end.x, l.end.y);
               }
